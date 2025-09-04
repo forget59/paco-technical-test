@@ -2,6 +2,9 @@ package technical.test.api.facade;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -47,5 +50,17 @@ public class FlightFacade {
                                 airportService.findByIataCode(savedFlight.getOrigin()),
                                 airportService.findByIataCode(savedFlight.getDestination())
                         ).map(t -> flightMapper.toDTO(t.getT1(), t.getT2(), t.getT3())));
+    }
+
+    public Mono<Page<FlightRepresentation>> getFlights(Pageable pageable) {
+        Flux<FlightRepresentation> flightRocordFlux = flightService.getListFlights(pageable)
+                .flatMapSequential(flightRecord -> Mono.zip(
+                        Mono.just(flightRecord),
+                        airportService.findByIataCode(flightRecord.getOrigin()),
+                        airportService.findByIataCode(flightRecord.getDestination())
+                ).map(tuple -> flightMapper.toDTO(tuple.getT1(), tuple.getT2(), tuple.getT3())));
+        Mono<Long> countMono = flightService.getFlightCount();
+
+        return flightRocordFlux.collectList().zipWith(countMono).map(p -> new PageImpl<>(p.getT1(), pageable, p.getT2()));
     }
 }
