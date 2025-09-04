@@ -66,6 +66,13 @@
             font-family: sans-serif;
             font-size: 0.8rem;
         }
+        .icon-max{
+            max-width:32px;
+            max-height:32px;
+            width:auto;
+            height:auto;
+            object-fit:contain;
+        }
     </style>
 </head>
 <body>
@@ -90,7 +97,7 @@
                 <th th:text="${flight.origin.name}"></th>
                 <th th:text="${flight.destination.name}"></th>
                 <th th:text="${flight.price}"></th>
-                <th th:text="${flight.image}"></th>
+                <th><img th:src="${flight.image}" alt="photo" class="icon-max" loading="lazy" decoding="async"/></th>
             </tr>
         </table>
     </ul>
