@@ -1,15 +1,19 @@
 package technical.test.api.facade;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import technical.test.api.mapper.AirportMapper;
 import technical.test.api.mapper.FlightMapper;
 import technical.test.api.record.AirportRecord;
+import technical.test.api.record.FlightRecord;
 import technical.test.api.representation.FlightRepresentation;
 import technical.test.api.services.AirportService;
 import technical.test.api.services.FlightService;
+
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -31,5 +35,17 @@ public class FlightFacade {
                             flightRepresentation.setDestination(this.airportMapper.convert(destination));
                             return Mono.just(flightRepresentation);
                         }));
+    }
+
+    public Mono<FlightRepresentation> createFlight(FlightRepresentation flightRepresentation) {
+        FlightRecord flightRecord = this.flightMapper.convert(flightRepresentation);
+        flightRecord.setId(UUID.randomUUID());
+        return flightService.createFlight(flightRecord)
+                .flatMap(savedFlight ->
+                        Mono.zip(
+                                Mono.just(savedFlight),
+                                airportService.findByIataCode(savedFlight.getOrigin()),
+                                airportService.findByIataCode(savedFlight.getDestination())
+                        ).map(t -> flightMapper.toDTO(t.getT1(), t.getT2(), t.getT3())));
     }
 }
