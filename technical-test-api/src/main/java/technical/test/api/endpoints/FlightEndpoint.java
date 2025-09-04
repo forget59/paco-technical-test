@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.reactive.function.server.ServerRequest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import technical.test.api.facade.FlightFacade;
@@ -34,8 +33,10 @@ public class FlightEndpoint {
     @GetMapping("/pageable")
     public Mono<Page<FlightRepresentation>> getFlights(@RequestParam(defaultValue = "0") int page,
                                                        @RequestParam(defaultValue = "6") int size,
-                                                       @RequestParam(defaultValue = "id") String sort) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+                                                       @RequestParam(defaultValue = "id") String sort,
+                                                       @RequestParam(defaultValue = "ASC") String direction) {
+        var dir = Sort.Direction.valueOf(direction);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(dir, sort));
         return flightFacade.getFlights(pageable);
     }
 }
