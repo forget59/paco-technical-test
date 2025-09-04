@@ -27,8 +27,6 @@ import static org.mockito.Mockito.when;
 class FlightFacadeTest {
 
     @Mock
-    FlightMapper flightFacade;
-    @Mock
     FlightService flightService;
     @Mock
     AirportService airportService;
