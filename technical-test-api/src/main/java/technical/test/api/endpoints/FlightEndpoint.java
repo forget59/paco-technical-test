@@ -1,10 +1,10 @@
 package technical.test.api.endpoints;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import technical.test.api.facade.FlightFacade;
 import technical.test.api.representation.FlightRepresentation;
 
@@ -17,5 +17,10 @@ public class FlightEndpoint {
     @GetMapping
     public Flux<FlightRepresentation> getAllFlights() {
         return flightFacade.getAllFlights();
+    }
+    @PostMapping
+    public Mono<ResponseEntity<FlightRepresentation>> createFlight(@RequestBody Mono<FlightRepresentation> flightRepresentation) {
+        return flightRepresentation.flatMap(flightFacade::createFlight)
+                .map(saved -> ResponseEntity.status(201).body(saved));
     }
 }
