@@ -1,5 +1,6 @@
 package technical.test.api.mapper;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,6 +52,14 @@ class FlightMapperTest {
                 .destination("JFK")
                 .build();
 
+        FlightRepresentation representation = getFlightRepresentation(uuid);
+
+        var res = flightMapper.toDTO(flightRecord, origin, destination);
+
+        Assertions.assertEquals(representation, res);
+    }
+
+    private static @NotNull FlightRepresentation getFlightRepresentation(UUID uuid) {
         AirportRepresentation originRepresentation = new AirportRepresentation();
         originRepresentation.setCountry("France");
         originRepresentation.setIata("CDG");
@@ -69,9 +78,6 @@ class FlightMapperTest {
         representation.setImage("image");
         representation.setOrigin(originRepresentation);
         representation.setDestination(destinationRepresentation);
-
-        var res = flightMapper.toDTO(flightRecord, origin, destination);
-
-        Assertions.assertEquals(representation, res);
+        return representation;
     }
 }
